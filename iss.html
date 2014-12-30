@@ -1,0 +1,78 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta property="og:title" content="ISS Real-Time Position" />
+    <title>ISS Real-Time Position</title>
+</head>
+<body style="margin: 0px;">
+    <div id="map" style="width: 100%; position: absolute; height: 100%">
+    </div>
+    <script type="text/javascript" src="//maps.googleapis.com/maps/api/js?sensor=false"> </script>
+    <script src="//cdn.socket.io/socket.io-1.1.0.js"></script>
+    <script src="//beebotte.com/bbt.js"></script>
+    <script type="text/javascript">
+        var map;
+        var flightPath = [];
+        var marker;
+        var isInitialized = false;
+
+        function drawPath (pos) {
+            flightPath.push( pos );
+            map.setCenter( pos )
+            var traject = new google.maps.Polyline({
+                path: flightPath,
+                geodesic: true,
+                strokeColor: '#FF0000',
+                strokeOpacity: 1.0,
+                strokeWeight: 2
+            });
+            traject.setMap(map);
+            marker.setPosition( map.center );
+        }
+        
+        function InitializeMap(pos) {
+            var options = {
+                zoom: 4,
+                center: pos,
+                mapTypeId: google.maps.MapTypeId.TERRAIN
+            };
+
+            map = new google.maps.Map(document.getElementById('map'), options);
+
+            marker = new google.maps.Marker({
+                position: map.center,
+                icon: {
+                    path: google.maps.SymbolPath.CIRCLE,
+                    scale: 5
+                },
+                draggable: false,
+            });
+            marker.setMap( map ); 
+            flightPath.push( pos );
+            isInitialized = true;
+        }
+
+        function init() {
+            // Replace with your own ACCESS_KEY, or use this one for receiving ISS position every second. 
+            var bbt = new BBT('502b09f9113252ba91d0fa24b2e69c1e', {ws_host: 'beebotte.com'});
+            bbt.subscribe( {channel: 'ISS', resource: 'position', read: true, write: false}, function(message){
+                var newposition = new google.maps.LatLng( message.data.position.lat, message.data.position.long );
+                if( !isInitialized ) {
+                  InitializeMap( newposition );
+                } else {
+                  drawPath( newposition );
+                }
+            });
+        }
+        
+        google.maps.event.addDomListener(window, 'load', init);
+
+    </script>
+
+
+</body>
+</html>
+
