@@ -33,12 +33,14 @@ line1 = "ISS (ZARYA)"
 line2 = "1 25544U 98067A   14358.52537182  .00021997  00000-0  35639-3 0  6213"
 line3 = "2 25544  51.6478 235.6040 0007241 168.1261 263.8740 15.52686091920860"
  
+### Replace CHENNL_TOKEN with that of your channel's (this code assumes the channel name is "ISS")
+CHANNEL_TOKEN = None
+bbt = BBT(token = CHANNEL_TOKEN)
+### Otherwise, use your Access and Secret keys to connect to Beebotte
 ### Replace ACCESS_KEY and SECRET_KEY with those of your account
-### Otherwise, you can use your channel token
-ACCESS_KEY = None
-SECRET_KEY = None
-bbt = BBT(ACCESS_KEY, SECRET_KEY)
-# bbt = BBT(token = ACCESS_KEY, SECRET_KEY)
+# ACCESS_KEY = None
+# SECRET_KEY = None
+# bbt = BBT(ACCESS_KEY, SECRET_KEY)
 
 
 ### Change channel name and resource name as suits you
