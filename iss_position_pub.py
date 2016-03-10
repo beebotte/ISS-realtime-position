@@ -30,8 +30,8 @@ url = "http://www.celestrak.com/NORAD/elements/stations.txt"
 
 ### This is what TLE looks like. It will be updated every hour
 line1 = "ISS (ZARYA)"
-line2 = "1 25544U 98067A   14358.52537182  .00021997  00000-0  35639-3 0  6213"
-line3 = "2 25544  51.6478 235.6040 0007241 168.1261 263.8740 15.52686091920860"
+line2 = "1 25544U 98067A   16070.60802946  .00010558  00000-0  16731-3 0  9999"
+line3 = "2 25544  51.6423 189.6478 0001642 260.2328 233.0609 15.53995147989640"
  
 ### Replace CHENNL_TOKEN with that of your channel's (this code assumes the channel name is "ISS")
 CHANNEL_TOKEN = None
@@ -50,48 +50,60 @@ count = 0
 
 def update_tle():
   global iss
-  ### Fetch and extract ISS TLE data
-  req = urllib2.Request(url)
-  response = urllib2.urlopen(req)
-  data = response.read()
 
-  tle = data.split('\n')[0:3]
-  line1 = tle[0]
-  line2 = tle[1]
-  line3 = tle[2]
+  try:
+    ### Fetch and extract ISS TLE data
+    req = urllib2.Request(url)
+    response = urllib2.urlopen(req)
+    data = response.read()
+
+    tle = data.split('\n')[0:3]
+    if len(tle) >= 3:
+      line1 = tle[0]
+      line2 = tle[1]
+      line3 = tle[2]
+
+  except Exception as inst:
+    print type(inst)     ### the exception instance
+    print inst.args      ### arguments stored in .args
+    print inst           ###
+
   iss = ephem.readtle(line1, line2, line3)
 
 def run():
   global count
   update_tle()
-  while True:
-        ### update the TLE data once per hour
-        if count > 3600:
-          update_tle()
-          count = 0
-        count += 1
-        try:
-          ### compute the ISS position
-          now = datetime.datetime.utcnow()
-          iss.compute(now)
-          print('longitude: %f - latitude: %f' % (degrees(iss.sublong), degrees(iss.sublat)))
-          ### Send temperature to Beebotte
-          iss_position_resource.publish({
-            "timestamp": round(time.time()), 
-            ### transform longitude and latitude to degrees
-            "position": { 
-              "long": degrees(iss.sublong), 
-              "lat": degrees(iss.sublat) 
-            } 
-          })
 
-        except Exception as inst:
-          print type(inst)     ### the exception instance
-          print inst.args      ### arguments stored in .args
-          print inst           ###
- 
-        ### sleep some time
-        time.sleep( 1 )
+  while True:
+
+    ### update the TLE data once per hour
+    if count > 3600:
+      update_tle()
+      count = 0
+    count += 1
+
+    try:
+      ### compute the ISS position
+      now = datetime.datetime.utcnow()
+      iss.compute(now)
+      print('longitude: %f - latitude: %f' % (degrees(iss.sublong), degrees(iss.sublat)))
+      ### Send temperature to Beebotte
+      iss_position_resource.publish({
+        "timestamp": round(time.time()), 
+        ### transform longitude and latitude to degrees
+        "position": { 
+          "long": degrees(iss.sublong), 
+          "lat": degrees(iss.sublat) 
+        } 
+      })
+
+    except Exception as inst:
+      print type(inst)     ### the exception instance
+      print inst.args      ### arguments stored in .args
+      print inst           ###
+
+    ### sleep some time
+    time.sleep( 1 )
  
 run()
 
