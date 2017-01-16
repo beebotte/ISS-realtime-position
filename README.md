@@ -11,6 +11,6 @@ Check this [tutorial](http://beebotte.com/tutorials/iss_realtime_position) for d
 [Bachar Wehbi](http://twitter.com/bachwehbi)
 
 ## License
-Copyright 2013 - 2014 Beebotte.
+Copyright 2013 - 2017 Beebotte.
 
 [The MIT License](http://opensource.org/licenses/MIT)
