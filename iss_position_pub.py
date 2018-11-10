@@ -28,11 +28,6 @@ from math import degrees
 ### URL where we will fetch TLE data
 url = "http://www.celestrak.com/NORAD/elements/stations.txt"
 
-### This is what TLE looks like. It will be updated every hour
-line1 = "ISS (ZARYA)"
-line2 = "1 25544U 98067A   16070.60802946  .00010558  00000-0  16731-3 0  9999"
-line3 = "2 25544  51.6423 189.6478 0001642 260.2328 233.0609 15.53995147989640"
- 
 ### Replace CHENNL_TOKEN with that of your channel's (this code assumes the channel name is "ISS")
 CHANNEL_TOKEN = None
 bbt = BBT(token = CHANNEL_TOKEN)
@@ -51,6 +46,11 @@ count = 0
 def update_tle():
   global iss
 
+  ### This is what TLE looks like. It will be updated every hour
+  # line1 = "ISS (ZARYA)"
+  # line2 = "1 25544U 98067A   16070.60802946  .00010558  00000-0  16731-3 0  9999"
+  # line3 = "2 25544  51.6423 189.6478 0001642 260.2328 233.0609 15.53995147989640"
+
   try:
     ### Fetch and extract ISS TLE data
     req = urllib2.Request(url)
@@ -62,13 +62,12 @@ def update_tle():
       line1 = tle[0]
       line2 = tle[1]
       line3 = tle[2]
+      iss = ephem.readtle(line1, line2, line3)
 
   except Exception as inst:
     print type(inst)     ### the exception instance
     print inst.args      ### arguments stored in .args
     print inst           ###
-
-  iss = ephem.readtle(line1, line2, line3)
 
 def run():
   global count
